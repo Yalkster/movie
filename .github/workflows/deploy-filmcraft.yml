@@ -1,0 +1,12 @@
+{"name": "Deploy FilmCraft to GitHub Pages",
+"on": {"workflow_dispatch": {}, "schedule": [{"cron": "35 5 * * 1"}]},
+"permissions": {"contents": "read", "pages": "write", "id-token": "write"},
+"concurrency": {"group": "pages", "cancel-in-progress": true},
+"jobs": {"deploy": {"runs-on": "ubuntu-latest",
+"environment": {"name": "github-pages", "url": "${{ steps.deployment.outputs.page_url }}"},
+"steps": [
+{"name": "Download FilmCraft web build", "env": {"GH_TOKEN": "${{ github.token }}"}, "run": "set -e; mkdir -p dl site; gh release download --repo storytold/filmcraft --pattern 'filmcraft-web-*.zip' --dir dl; unzip -q dl/filmcraft-web-*.zip -d unpacked; cp -R unpacked/filmcraft-web-*/. site/; touch site/.nojekyll; test -f site/index.html; ls -lh site"},
+{"uses": "actions/configure-pages@v5"},
+{"uses": "actions/upload-pages-artifact@v3", "with": {"path": "site"}},
+{"id": "deployment", "uses": "actions/deploy-pages@v4"}
+]}}}
